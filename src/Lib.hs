@@ -95,10 +95,12 @@ primes = filter isPrime [2..]
     where isPrime n = length (take 1 $ factors n) == 0
           factors n = [x | x <- [2..n-1], n `mod` x == 0]
 
--- TODO: implement list of prime factors for given number (use primes list)
 factorization :: Integer -> [Integer]
-factorization = undefined
-
+factorization n
+    | n < 2 = []
+    | otherwise = lowestFactor : (factorization $ n `div` lowestFactor)
+        where lowestFactor = head $ primeFactors n
+              primeFactors n = [x | x <- primes, n `mod` x == 0] 
 
 -- | Euler's totient function
 -- | https://en.wikipedia.org/wiki/Euler%27s_totient_function
