@@ -85,9 +85,10 @@ shapeArea triangle@(Triangle a b c) = sqrt $ s * (s - a) * (s - b) * (s - c)
 -------------------------------------------------------------------------------
 -- | Geometric sequence as infinite list
 -- | https://en.wikipedia.org/wiki/Geometric_progression
--- TODO: implement geometric series
 geometricSequence :: Num b => b -> b -> [b]
-geometricSequence a r = undefined
+geometricSequence a r = sequence a 1 r
+    where sequence :: Num b => b -> b -> b -> [b]
+          sequence a exp ratio = a * exp : sequence a (exp * ratio) ratio
 
 
 -- TODO: implement infinite list of primes [2, 3, 5, 7, 11, ...]
