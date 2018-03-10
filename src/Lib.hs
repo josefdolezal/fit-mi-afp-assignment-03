@@ -1,8 +1,9 @@
 module Lib where
 
+import qualified Data.List as List
+import qualified Data.Set as Set
 import qualified Data.DummyList.Examples
 import qualified Data.MyString.Examples
-import qualified Data.Set as Set
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPES!
@@ -37,7 +38,47 @@ data Person = Person { pFirstname     :: String
 -- | http://www.studenta.cz/vysokoskolske-tituly-jak-oslovovat-na-akademicke-pude/magazin/article/587
 -- TODO: implement czech salutation which passes the tests
 czechSalutation :: Person -> String
-czechSalutation = undefined
+czechSalutation p = unwords $ filter unEmpty $ map salute [personGender, personTitle, personFullName]
+    where salute f = f p
+          unEmpty = not . List.null
+
+personGender :: Person -> String
+personGender (Person _ _ g s a t)
+    | a < 15 = ""
+    | g == Male = "pan"
+    | isMs = "slečna"
+    | otherwise = "paní"
+    where isMs = s == Single && a < 25 && t == []
+
+personTitle :: Person -> String
+personTitle (Person _ _ g _ _ t) = title g t
+    where title _ [] = ""
+          title g t
+            | g == Male = manTitle bestTitle
+            | otherwise = womanTitle bestTitle
+          bestTitle = maximum t 
+
+manTitle :: AcademicTitle -> String
+manTitle t
+    | t == Mgr = "magistr"
+    | t == Ing = "inženýr"
+    | t == Doc = "docent"
+    | t == Prof = "profesor"
+    | t `elem` [PhDr, MUDr, PhD] = "doktor"
+    | otherwise = ""
+
+womanTitle :: AcademicTitle -> String
+womanTitle t
+    | t == Mgr = "magistra"
+    | t == Ing = "inženýrka"
+    | t == Doc = "docentka"
+    | t == Prof = "profesorka"
+    | t `elem` [PhDr, MUDr, PhD] = "doktorka"
+    | otherwise = ""
+
+personFullName (Person f l _ _ a _)
+    | a < 15 = f
+    | otherwise = unwords [f, l]
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPE!
