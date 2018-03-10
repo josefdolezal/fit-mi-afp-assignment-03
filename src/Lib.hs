@@ -90,10 +90,10 @@ geometricSequence a r = sequence a 1 r
     where sequence :: Num b => b -> b -> b -> [b]
           sequence a exp ratio = a * exp : sequence a (exp * ratio) ratio
 
-
--- TODO: implement infinite list of primes [2, 3, 5, 7, 11, ...]
 primes :: [Integer]
-primes = undefined
+primes = filter isPrime [2..]
+    where isPrime n = length (take 1 $ factors n) == 0
+          factors n = [x | x <- [2..n-1], n `mod` x == 0]
 
 -- TODO: implement list of prime factors for given number (use primes list)
 factorization :: Integer -> [Integer]
