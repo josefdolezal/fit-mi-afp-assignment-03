@@ -36,7 +36,6 @@ data Person = Person { pFirstname     :: String
 -- | https://www.muni.cz/o-univerzite/uredni-deska/oslovovani-akademickych-pracovniku
 -- | http://www.etiketavse.estranky.cz/clanky/etiketa/4.-oslovovani-a-spolecenska-vyznamnost.html
 -- | http://www.studenta.cz/vysokoskolske-tituly-jak-oslovovat-na-akademicke-pude/magazin/article/587
--- TODO: implement czech salutation which passes the tests
 czechSalutation :: Person -> String
 czechSalutation p = unwords $ filter unEmpty $ map salute [personGender, personTitle, personFullName]
     where salute f = f p
@@ -99,7 +98,6 @@ data AllensIAlgebraRelation a = (a, a) `Equals`   (a, a) -- X = Y
 -- | Compare two intervals given as tuples and return appropriate
 -- | Allen's Interval Algebra relation between them
 -- | It assumes that for (x, y) is always x <= y
--- TODO: implement Allen's algebra relation detection of intervals
 allensComparison :: Ord a => (a, a) -> (a, a) -> AllensIAlgebraRelation a
 allensComparison l@(a, b) r@(x, y)
     | shouldSwitch     = allensComparison r l
