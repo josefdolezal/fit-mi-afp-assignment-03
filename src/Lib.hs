@@ -69,13 +69,18 @@ data Shape2D = Circle { ciRadius :: Double }
              | Triangle { triSideA :: Double, triSideB :: Double, triSideC :: Double }
              deriving (Show, Read, Eq)
 
--- TODO: implement circumference calculation for 2D shapes
 shapeCircumference :: Shape2D -> Double
-shapeCircumference = undefined
+shapeCircumference (Circle radius) = 2 * pi * radius
+shapeCircumference (Square edge) = 4 * edge
+shapeCircumference (Rectangle width height) = 2 * (width + height)
+shapeCircumference (Triangle a b c) = a + b + c
 
--- TODO: implement area calculation for 2D shapes
 shapeArea :: Shape2D -> Double
-shapeArea = undefined
+shapeArea (Circle radius) = pi * radius ^ 2
+shapeArea (Square edge) = edge ^ 2
+shapeArea (Rectangle width height) = width * height
+shapeArea triangle@(Triangle a b c) = sqrt $ s * (s - a) * (s - b) * (s - c)
+    where s = (shapeCircumference triangle) / 2
 
 -------------------------------------------------------------------------------
 -- | Geometric sequence as infinite list
