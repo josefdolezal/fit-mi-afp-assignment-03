@@ -2,6 +2,7 @@ module Lib where
 
 import qualified Data.DummyList.Examples
 import qualified Data.MyString.Examples
+import qualified Data.Set as Set
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPES!
@@ -104,9 +105,12 @@ factorization n
 
 -- | Euler's totient function
 -- | https://en.wikipedia.org/wiki/Euler%27s_totient_function
--- TODO: implement phi(n) by using search in primes & factorization
 phi :: Integer -> Integer
-phi = undefined
+phi n = round $ fromIntegral num * productFormula num
+    where num = abs n
+          productFormula n = product $ map productMember $ unique $ factorization n
+          productMember p = 1 - 1 / (fromIntegral p)
+          unique = Set.toList . Set.fromList
 
 -------------------------------------------------------------------------------
 -- !!! DO NOT COPY, JUST IMPORT (avoid conflicts, pick the best option for you)
