@@ -1,5 +1,10 @@
 module Lib where
 
+import qualified Data.List as List
+import qualified Data.Set as Set
+import qualified Data.DummyList.Examples
+import qualified Data.MyString.Examples
+
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPES!
 data MaritalStatus = Single | Married | Widowed
@@ -31,9 +36,48 @@ data Person = Person { pFirstname     :: String
 -- | https://www.muni.cz/o-univerzite/uredni-deska/oslovovani-akademickych-pracovniku
 -- | http://www.etiketavse.estranky.cz/clanky/etiketa/4.-oslovovani-a-spolecenska-vyznamnost.html
 -- | http://www.studenta.cz/vysokoskolske-tituly-jak-oslovovat-na-akademicke-pude/magazin/article/587
--- TODO: implement czech salutation which passes the tests
 czechSalutation :: Person -> String
-czechSalutation = undefined
+czechSalutation p = unwords $ filter unEmpty $ map salute [personGender, personTitle, personFullName]
+    where salute f = f p
+          unEmpty = not . List.null
+
+personGender :: Person -> String
+personGender (Person _ _ g s a t)
+    | a < 15 = ""
+    | g == Male = "pan"
+    | isMs = "slečna"
+    | otherwise = "paní"
+    where isMs = s == Single && a < 25 && t == []
+
+personTitle :: Person -> String
+personTitle (Person _ _ g _ _ t) = title g t
+    where title _ [] = ""
+          title g t
+            | g == Male = manTitle bestTitle
+            | otherwise = womanTitle bestTitle
+          bestTitle = maximum t 
+
+manTitle :: AcademicTitle -> String
+manTitle t
+    | t == Mgr = "magistr"
+    | t == Ing = "inženýr"
+    | t == Doc = "docent"
+    | t == Prof = "profesor"
+    | t `elem` [PhDr, MUDr, PhD] = "doktor"
+    | otherwise = ""
+
+womanTitle :: AcademicTitle -> String
+womanTitle t
+    | t == Mgr = "magistra"
+    | t == Ing = "inženýrka"
+    | t == Doc = "docentka"
+    | t == Prof = "profesorka"
+    | t `elem` [PhDr, MUDr, PhD] = "doktorka"
+    | otherwise = ""
+
+personFullName (Person f l _ _ a _)
+    | a < 15 = f
+    | otherwise = unwords [f, l]
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPE!
@@ -54,9 +98,17 @@ data AllensIAlgebraRelation a = (a, a) `Equals`   (a, a) -- X = Y
 -- | Compare two intervals given as tuples and return appropriate
 -- | Allen's Interval Algebra relation between them
 -- | It assumes that for (x, y) is always x <= y
--- TODO: implement Allen's algebra relation detection of intervals
 allensComparison :: Ord a => (a, a) -> (a, a) -> AllensIAlgebraRelation a
-allensComparison = undefined
+allensComparison l@(a, b) r@(x, y)
+    | shouldSwitch     = allensComparison r l
+    | a == x && b == y = l `Equals` r
+    | b < x            = l `Before` r
+    | b == x           = l `Meets` r
+    | a < x && b < y   = l `Overlaps` r
+    | a == x           = l `Starts` r
+    | a > x && b < y   = l `During` r
+    | b == y           = l `Finishes` r
+    where shouldSwitch = y < b || (y <= b && x > a)
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPE!
@@ -66,43 +118,53 @@ data Shape2D = Circle { ciRadius :: Double }
              | Triangle { triSideA :: Double, triSideB :: Double, triSideC :: Double }
              deriving (Show, Read, Eq)
 
--- TODO: implement circumference calculation for 2D shapes
 shapeCircumference :: Shape2D -> Double
-shapeCircumference = undefined
+shapeCircumference (Circle radius) = 2 * pi * radius
+shapeCircumference (Square edge) = 4 * edge
+shapeCircumference (Rectangle width height) = 2 * (width + height)
+shapeCircumference (Triangle a b c) = a + b + c
 
--- TODO: implement area calculation for 2D shapes
 shapeArea :: Shape2D -> Double
-shapeArea = undefined
+shapeArea (Circle radius) = pi * radius ^ 2
+shapeArea (Square edge) = edge ^ 2
+shapeArea (Rectangle width height) = width * height
+shapeArea triangle@(Triangle a b c) = sqrt $ s * (s - a) * (s - b) * (s - c)
+    where s = (shapeCircumference triangle) / 2
 
 -------------------------------------------------------------------------------
 -- | Geometric sequence as infinite list
 -- | https://en.wikipedia.org/wiki/Geometric_progression
--- TODO: implement geometric series
 geometricSequence :: Num b => b -> b -> [b]
-geometricSequence a r = undefined
+geometricSequence a r = sequence a 1 r
+    where sequence :: Num b => b -> b -> b -> [b]
+          sequence a exp ratio = a * exp : sequence a (exp * ratio) ratio
 
-
--- TODO: implement infinite list of primes [2, 3, 5, 7, 11, ...]
 primes :: [Integer]
-primes = undefined
+primes = filter isPrime [2..]
+    where isPrime n = length (take 1 $ factors n) == 0
+          factors n = [x | x <- [2..n-1], n `mod` x == 0]
 
--- TODO: implement list of prime factors for given number (use primes list)
 factorization :: Integer -> [Integer]
-factorization = undefined
-
+factorization n
+    | n < 2 = []
+    | otherwise = lowestFactor : (factorization $ n `div` lowestFactor)
+        where lowestFactor = head $ primeFactors n
+              primeFactors n = [x | x <- primes, n `mod` x == 0] 
 
 -- | Euler's totient function
 -- | https://en.wikipedia.org/wiki/Euler%27s_totient_function
--- TODO: implement phi(n) by using search in primes & factorization
 phi :: Integer -> Integer
-phi = undefined
+phi n = round $ fromIntegral num * productFormula num
+    where num = abs n
+          productFormula n = product $ map productMember $ unique $ factorization n
+          productMember p = 1 - 1 / (fromIntegral p)
+          unique = Set.toList . Set.fromList
 
 -------------------------------------------------------------------------------
 -- !!! DO NOT COPY, JUST IMPORT (avoid conflicts, pick the best option for you)
 -- iii visit the content of modules
--- TODO: replace undefined with "example1" from Data.DummyList.Examples module
-dummyListExample1 = undefined
--- TODO: replace undefined with "example2" from Data.MyString.Examples module
-stringExample2 = undefined
--- TODO: replace undefined with "example3" from Data.MyString.Examples module
-stringExample3 = undefined
+dummyListExample1 = Data.DummyList.Examples.example1
+
+stringExample2 = Data.MyString.Examples.example2
+
+stringExample3 = Data.MyString.Examples.example3
